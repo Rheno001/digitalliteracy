@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Frontend Basics Quiz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f8fafc;
+      --surface: rgba(255, 255, 255, 0.9);
+      --accent: #4f46e5;
+      --accent-light: #eef2ff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --correct: #10b981;
+      --correct-bg: #ecfdf5;
+      --wrong: #ef4444;
+      --wrong-bg: #fef2f2;
+      --radius: 20px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: radial-gradient(circle at top right, #eef2ff, #f8fafc);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 3rem 1rem 5rem;
+      line-height: 1.6;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--text);
+    }
+
+    h1 span { color: var(--accent); }
+
+    .subtitle {
+      margin-top: 0.75rem;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .quiz-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .progress-bar-outer {
+      background: var(--border);
+      border-radius: 999px;
+      height: 6px;
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .progress-bar-inner {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    .progress-label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+      text-align: right;
+    }
+
+    .question-card {
+      background: var(--surface);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+      animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .q-number {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+
+    .q-text {
+      font-size: 1.05rem;
+      font-weight: 500;
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+    }
+
+    .options { display: flex; flex-direction: column; gap: 0.6rem; }
+
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 0.95rem;
+      position: relative;
+    }
+
+    .option:hover { border-color: var(--accent); background: var(--accent-light); }
+
+    .option input[type="radio"] { 
+      accent-color: var(--accent); 
+      width: 18px; 
+      height: 18px; 
+      flex-shrink: 0; 
+      margin-top: 0.15rem;
+    }
+
+    .option.correct  { border-color: var(--correct); background: var(--correct-bg); color: #065f46; font-weight: 600; }
+    .option.wrong    { border-color: var(--wrong); background: var(--wrong-bg); color: #991b1b; font-weight: 600; }
+    .option span { flex: 1; }
+    .status-icon { font-weight: 800; margin-left: 0.5rem; flex-shrink: 0; }
+
+    .submit-btn {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      margin-top: 1.5rem;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .submit-btn:hover  { opacity: 0.88; }
+    .submit-btn:active { transform: scale(0.99); }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Result screen */
+    .result-screen {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2.5rem 2rem;
+      text-align: center;
+      animation: fadeUp 0.4s ease;
+    }
+
+    .score-ring {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: conic-gradient(var(--accent) 0%, var(--accent-light) 0%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      position: relative;
+    }
+
+    .score-ring-inner {
+      width: 88px;
+      height: 88px;
+      background: var(--surface);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .score-number {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .score-denom { font-size: 0.75rem; color: var(--muted); }
+
+    .result-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .result-msg { color: var(--muted); font-size: 0.97rem; line-height: 1.6; }
+
+    .locked-screen {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .lock-icon { font-size: 3rem; margin-bottom: 1rem; }
+
+    .locked-screen h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .locked-screen p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
+
+    .review-toggle {
+      margin-top: 1.5rem;
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 0.6rem 1.4rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      cursor: pointer;
+      color: var(--text);
+      transition: border-color 0.15s;
+    }
+
+    .review-toggle:hover { border-color: var(--accent); }
+
+    .review-section { margin-top: 2rem; }
+    .review-section .question-card { pointer-events: none; }
+
+    @media (max-width: 480px) {
+      .question-card { padding: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Objective Test</div>
+  <h1>Frontend <span>Basics</span></h1>
+  <p class="subtitle">20 questions · Pick one answer per question</p>
+</header>
+
+<div class="quiz-wrap" id="app"></div>
+
+<script>
+const ALL_QUESTIONS = [
+  // HTML full meaning & basics
+  { q: "What does HTML stand for?", options: ["HyperText Markup Language", "HighText Machine Language", "HyperText Multiple Language", "HyperTransfer Markup Language"], answer: 0 },
+  { q: "What does CSS stand for?", options: ["Colorful Style Sheets", "Computer Style Sheets", "Cascading Style Sheets", "Creative Style Sheets"], answer: 2 },
+  { q: "Which of the following is NOT one of the three main frontend development languages?", options: ["HTML", "CSS", "Python", "JavaScript"], answer: 2 },
+  { q: "What is the role of HTML in a webpage?", options: ["It styles the page", "It provides the structure/content", "It makes the page interactive", "It connects to a database"], answer: 1 },
+  { q: "What is the role of CSS in a webpage?", options: ["It defines the structure", "It adds interactivity", "It styles and presents the content", "It stores data"], answer: 2 },
+  { q: "What is the role of JavaScript in a webpage?", options: ["It creates the layout", "It adds color to elements", "It adds interactivity and behavior", "It links pages together"], answer: 2 },
+
+  // HTML structure
+  { q: "Which tag wraps ALL other HTML tags on a page?", options: ["<body>", "<head>", "<html>", "<main>"], answer: 2 },
+  { q: "Where should the <title> tag of a webpage go?", options: ["Inside <body>", "Inside <head>", "Inside <footer>", "Inside <html>"], answer: 1 },
+  { q: "Which section of an HTML page contains the visible content that users see?", options: ["<head>", "<title>", "<meta>", "<body>"], answer: 3 },
+  { q: "What is the very first line of a standard HTML document called?", options: ["The HTML tag", "The DOCTYPE declaration", "The metadata", "The head tag"], answer: 1 },
+  { q: "What does <!DOCTYPE html> tell the browser?", options: ["To load CSS", "The document is HTML5", "The document is XML", "To run JavaScript"], answer: 1 },
+  { q: "Which of these represents the correct basic structure order of an HTML page?", options: ["<!DOCTYPE> → <html> → <head> → <body>", "<head> → <body> → <html>", "<body> → <head> → <!DOCTYPE>", "<html> → <!DOCTYPE> → <head>"], answer: 0 },
+
+  // IDE
+  { q: "What does IDE stand for?", options: ["Integrated Design Environment", "Internet Development Engine", "Integrated Development Environment", "Internal Document Editor"], answer: 2 },
+  { q: "Which of the following is a popular IDE used by web developers?", options: ["Google Chrome", "Visual Studio Code", "Microsoft Excel", "Adobe Photoshop"], answer: 1 },
+  { q: "What is the main purpose of an IDE?", options: ["To browse the internet", "To write, edit, and manage code efficiently", "To design images", "To compress files"], answer: 1 },
+  { q: "Which feature is commonly found in an IDE?", options: ["Video editing", "Syntax highlighting", "Music playback", "File compression"], answer: 1 },
+
+  // HTML Tags — img
+  { q: "Which HTML tag is used to display an image?", options: ["<picture>", "<src>", "<img>", "<image>"], answer: 2 },
+  { q: "Which attribute on the <img> tag specifies the image file location?", options: ["href", "src", "link", "url"], answer: 1 },
+  { q: "The <img> tag is:", options: ["A container tag with an opening and closing tag", "A self-closing tag", "A tag that requires JavaScript", "A CSS property"], answer: 1 },
+  { q: "Which attribute on the <img> tag provides alternative text for accessibility?", options: ["title", "alt", "desc", "label"], answer: 1 },
+
+  // HTML Tags — p and headings
+  { q: "What does the <p> tag represent?", options: ["A picture", "A paragraph", "A page", "A position"], answer: 1 },
+  { q: "Which heading tag produces the LARGEST text by default?", options: ["<h6>", "<h3>", "<h1>", "<heading>"], answer: 2 },
+  { q: "Which heading tag produces the SMALLEST text by default?", options: ["<h1>", "<h4>", "<h5>", "<h6>"], answer: 3 },
+  { q: "How many levels of heading tags exist in HTML?", options: ["3", "4", "5", "6"], answer: 3 },
+  { q: "Which is the correct tag for a subheading, one level below the main heading?", options: ["<h1>", "<h2>", "<sub>", "<small>"], answer: 1 },
+
+  // HTML Tags — br
+  { q: "What does the <br> tag do?", options: ["Creates a bold text", "Creates a line break", "Creates a border", "Creates a new section"], answer: 1 },
+  { q: "The <br> tag is:", options: ["A block-level element with a closing tag", "A self-closing tag", "A tag that requires CSS", "Only used inside tables"], answer: 1 },
+  { q: "Which of the following is a correct use of the <br> tag?", options: ["<br>text</br>", "<break />", "<br>", "<linebreak>"], answer: 2 },
+
+  // HTML Tags — input
+  { q: "Which tag creates a form input field in HTML?", options: ["<field>", "<form-input>", "<input>", "<textbox>"], answer: 2 },
+  { q: "Which attribute on the <input> tag determines what kind of input it is (text, password, etc.)?", options: ["kind", "mode", "type", "style"], answer: 2 },
+  { q: "Which input type would you use to let a user enter a password?", options: ["type=\"text\"", "type=\"password\"", "type=\"secret\"", "type=\"hidden\""], answer: 1 },
+  { q: "Which input type creates a clickable button?", options: ["type=\"click\"", "type=\"press\"", "type=\"submit\"", "type=\"action\""], answer: 2 },
+  { q: "The <input> tag is:", options: ["A block element with a closing tag", "An inline self-closing tag", "A tag only for forms", "A CSS component"], answer: 1 },
+
+  // HTML Tags — ul, ol, li
+  { q: "What does the <ul> tag create?", options: ["An ordered list", "An underlined list", "An unordered (bulleted) list", "An updated list"], answer: 2 },
+  { q: "What does the <ol> tag create?", options: ["An optional list", "An ordered (numbered) list", "An outlined list", "An overflowed list"], answer: 1 },
+  { q: "What does the <li> tag represent?", options: ["A list item", "A line in the code", "A linked item", "A labeled input"], answer: 0 },
+  { q: "Which tag must wrap all <li> items in a bulleted list?", options: ["<list>", "<bl>", "<ul>", "<items>"], answer: 2 },
+  { q: "Which is the correct way to write a numbered list?", options: ["<ul><li>One</li></ul>", "<ol><li>One</li></ol>", "<list><item>One</item></list>", "<nl><li>One</li></nl>"], answer: 1 },
+  { q: "Can you use <li> tags inside both <ul> and <ol>?", options: ["No, <li> only works inside <ul>", "No, <li> only works inside <ol>", "Yes, <li> works inside both", "No, neither can use <li>"], answer: 2 },
+
+  // Mixed conceptual
+  { q: "What does a web browser use HTML for?", options: ["To run server-side code", "To render and display web page content", "To connect to a database", "To style the page"], answer: 1 },
+  { q: "Which of the following is the correct way to write an HTML comment?", options: ["// This is a comment", "/* This is a comment */", "<!-- This is a comment -->", "# This is a comment"], answer: 2 },
+  { q: "HTML tags are usually written:", options: ["In opening tags only", "In closing tags only", "In pairs: an opening and a closing tag", "As single letters only"], answer: 2 },
+  { q: "What character is used at the start and end of most HTML tags?", options: ["{ }", "[ ]", "< >", "( )"], answer: 2 },
+  { q: "Which of the following is NOT an HTML heading tag?", options: ["<h1>", "<h3>", "<h6>", "<h7>"], answer: 3 },
+  { q: "Which frontend language is responsible for making web pages interactive?", options: ["HTML", "CSS", "SQL", "JavaScript"], answer: 3 },
+  { q: "An HTML element usually consists of:", options: ["Only a tag name", "An opening tag, content, and a closing tag", "Only an attribute", "A CSS property and value"], answer: 1 },
+  { q: "What is an HTML attribute?", options: ["A CSS class name", "Extra information added inside an opening tag", "A JavaScript variable", "A type of heading"], answer: 1 },
+  { q: "Which of these correctly embeds an image from a URL?", options: ["<img link=\"photo.jpg\">", "<img src=\"photo.jpg\">", "<image url=\"photo.jpg\">", "<img href=\"photo.jpg\">"], answer: 1 },
+  { q: "What is the purpose of the <head> section in an HTML document?", options: ["To display the main visible content", "To contain metadata, links to CSS, and the page title", "To add images to the page", "To add a navigation bar"], answer: 1 },
+];
+
+const TOTAL_SHOWN = 20;
+const LS_KEY = "fq_submitted_v1";
+const LS_ANSWERS = "fq_answers_v1";
+const LS_QS = "fq_questions_v1";
+
+const esc = (str) => String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getOrCreateQuestions() {
+  const stored = localStorage.getItem(LS_QS);
+  if (stored) return JSON.parse(stored);
+  const chosen = shuffle(ALL_QUESTIONS).slice(0, TOTAL_SHOWN);
+  localStorage.setItem(LS_QS, JSON.stringify(chosen));
+  return chosen;
+}
+
+const app = document.getElementById("app");
+const submitted = localStorage.getItem(LS_KEY) === "true";
+
+if (submitted) {
+  renderLocked();
+} else {
+  renderQuiz();
+}
+
+function renderQuiz() {
+  const questions = getOrCreateQuestions();
+  let selected = new Array(questions.length).fill(null);
+
+  function build() {
+    app.innerHTML = "";
+
+    const progressWrap = document.createElement("div");
+    const answered = selected.filter(s => s !== null).length;
+    progressWrap.innerHTML = `
+      <div class="progress-label">${answered} of ${questions.length} answered</div>
+      <div class="progress-bar-outer"><div class="progress-bar-inner" style="width:${(answered/questions.length)*100}%"></div></div>
+    `;
+    app.appendChild(progressWrap);
+
+    questions.forEach((q, qi) => {
+      const card = document.createElement("div");
+      card.className = "question-card";
+      card.innerHTML = `
+        <div class="q-number">Question ${qi + 1}</div>
+        <div class="q-text">${esc(q.q)}</div>
+        <div class="options" id="opts-${qi}">
+          ${q.options.map((opt, oi) => `
+            <label class="option" id="opt-${qi}-${oi}">
+              <input type="radio" name="q${qi}" value="${oi}" ${selected[qi] === oi ? "checked" : ""}>
+              <span>${esc(opt)}</span>
+            </label>
+          `).join("")}
+        </div>
+      `;
+      app.appendChild(card);
+
+      card.querySelectorAll(`input[type="radio"]`).forEach(input => {
+        input.addEventListener("change", () => {
+          selected[qi] = parseInt(input.value);
+          const label = document.querySelector(".progress-label");
+          const bar = document.querySelector(".progress-bar-inner");
+          const ans = selected.filter(s => s !== null).length;
+          label.textContent = `${ans} of ${questions.length} answered`;
+          bar.style.width = `${(ans / questions.length) * 100}%`;
+          btn.disabled = selected.some(s => s === null);
+        });
+      });
+    });
+
+    const btn = document.createElement("button");
+    btn.className = "submit-btn";
+    btn.textContent = "Submit Test";
+    btn.disabled = selected.some(s => s === null);
+    btn.addEventListener("click", () => {
+      if (selected.some(s => s === null)) {
+        alert("Please answer all questions before submitting.");
+        return;
+      }
+      localStorage.setItem(LS_KEY, "true");
+      localStorage.setItem(LS_ANSWERS, JSON.stringify(selected));
+      renderResult(questions, selected);
+    });
+    app.appendChild(btn);
+  }
+
+  build();
+}
+
+function renderResult(questions, selected) {
+  app.innerHTML = "";
+  const score = questions.reduce((acc, q, i) => acc + (selected[i] === q.answer ? 1 : 0), 0);
+  const pct = Math.round((score / questions.length) * 100);
+
+  let title = "", msg = "";
+  if (pct >= 80)      { title = "Excellent work! 🎉"; msg = "You have a strong grasp of frontend basics. Keep building on this foundation!"; }
+  else if (pct >= 60) { title = "Good effort! 👍";    msg = "You're getting there. Review the topics you missed and you'll improve quickly."; }
+  else                { title = "Keep studying! 📚";  msg = "Don't be discouraged — every expert was once a beginner. Go over the material again and try to understand each concept."; }
+
+  const deg = Math.round((score / questions.length) * 360);
+
+  const result = document.createElement("div");
+  result.className = "result-screen";
+  result.innerHTML = `
+    <div class="score-ring" style="background: conic-gradient(#4f46e5 ${deg}deg, #eef2ff ${deg}deg);">
+      <div class="score-ring-inner">
+        <span class="score-number">${score}</span>
+        <span class="score-denom">/ ${questions.length}</span>
+      </div>
+    </div>
+    <div class="result-title">${title}</div>
+    <p class="result-msg">You scored <strong>${score} out of ${questions.length}</strong> (${pct}%). ${msg}</p>
+    <button class="review-toggle" id="review-btn">Review answers</button>
+  `;
+  app.appendChild(result);
+
+  const reviewSection = document.createElement("div");
+  reviewSection.className = "review-section";
+  reviewSection.style.display = "none";
+  app.appendChild(reviewSection);
+
+  document.getElementById("review-btn").addEventListener("click", () => {
+    const visible = reviewSection.style.display !== "none";
+    reviewSection.style.display = visible ? "none" : "block";
+    document.getElementById("review-btn").textContent = visible ? "Review answers" : "Hide review";
+    if (!visible && reviewSection.innerHTML === "") {
+      buildReview(questions, selected, reviewSection);
+    }
+  });
+}
+
+function buildReview(questions, selected, container) {
+  questions.forEach((q, qi) => {
+    const userAns = selected[qi];
+    const correct = q.answer;
+    const card = document.createElement("div");
+    card.className = "question-card";
+    card.innerHTML = `
+      <div class="q-number">Question ${qi + 1}</div>
+      <div class="q-text">${esc(q.q)}</div>
+      <div class="options">
+        ${q.options.map((opt, oi) => {
+          let cls = "";
+          if (oi === correct) cls = "correct";
+          else if (oi === userAns && userAns !== correct) cls = "wrong";
+          const icon = oi === correct ? '<span class="status-icon">✓</span>' : (oi === userAns ? '<span class="status-icon">✗</span>' : "");
+          return `<div class="option ${cls}"><span>${esc(opt)}</span>${icon}</div>`;
+        }).join("")}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function renderLocked() {
+  const storedQ = localStorage.getItem(LS_QS);
+  const storedA = localStorage.getItem(LS_ANSWERS);
+
+  app.innerHTML = "";
+
+  let scoreHtml = "";
+  if (storedQ && storedA) {
+    const questions = JSON.parse(storedQ);
+    const selected = JSON.parse(storedA);
+    const score = questions.reduce((acc, q, i) => acc + (selected[i] === q.answer ? 1 : 0), 0);
+    scoreHtml = `<p style="margin-top:0.5rem; color:var(--accent); font-weight:600; font-size:1.05rem;">Your score: ${score} / ${questions.length}</p>`;
+  }
+
+  const locked = document.createElement("div");
+  locked.className = "locked-screen";
+  locked.innerHTML = `
+    <div class="lock-icon">🔒</div>
+    <h2>Test Already Submitted</h2>
+    <p>You have already completed this test. Your submission has been recorded and you cannot retake it.</p>
+    ${scoreHtml}
+  `;
+
+  if (storedQ && storedA) {
+    const reviewBtn = document.createElement("button");
+    reviewBtn.className = "review-toggle";
+    reviewBtn.style.marginTop = "1.5rem";
+    reviewBtn.textContent = "Review my answers";
+    locked.appendChild(reviewBtn);
+
+    const reviewSection = document.createElement("div");
+    reviewSection.className = "review-section";
+    reviewSection.style.display = "none";
+    app.appendChild(locked);
+    app.appendChild(reviewSection);
+
+    reviewBtn.addEventListener("click", () => {
+      const visible = reviewSection.style.display !== "none";
+      reviewSection.style.display = visible ? "none" : "block";
+      reviewBtn.textContent = visible ? "Review my answers" : "Hide review";
+      if (!visible && reviewSection.innerHTML === "") {
+        buildReview(JSON.parse(storedQ), JSON.parse(storedA), reviewSection);
+      }
+    });
+  } else {
+    app.appendChild(locked);
+  }
+}
+</script>
+</body>
+</html>
