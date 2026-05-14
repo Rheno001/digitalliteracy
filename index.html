@@ -672,7 +672,10 @@
     </div>
     <div class="result-title">${title}</div>
     <p class="result-msg">You scored <strong>${score} out of ${questions.length}</strong> (${pct}%). ${msg}</p>
-    <button class="review-toggle" id="review-btn">Review answers</button>
+    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
+      <button class="review-toggle" id="review-btn">Review answers</button>
+      <button class="review-toggle" onclick="resetQuiz()" style="background: var(--accent); color: white; border-color: var(--accent);">Retake Test</button>
+    </div>
   `;
       app.appendChild(result);
 
@@ -800,7 +803,19 @@
         reviewBtn.className = "review-toggle";
         reviewBtn.style.marginTop = "1.5rem";
         reviewBtn.textContent = "Review my answers";
+        
+        const retakeBtn = document.createElement("button");
+        retakeBtn.className = "review-toggle";
+        retakeBtn.style.marginTop = "1.5rem";
+        retakeBtn.style.marginLeft = "1rem";
+        retakeBtn.style.background = "var(--accent)";
+        retakeBtn.style.color = "white";
+        retakeBtn.style.borderColor = "var(--accent)";
+        retakeBtn.textContent = "Retake Test";
+        retakeBtn.onclick = resetQuiz;
+
         locked.appendChild(reviewBtn);
+        locked.appendChild(retakeBtn);
 
         const reviewSection = document.createElement("div");
         reviewSection.className = "review-section";
@@ -830,6 +845,15 @@
       };
       app.appendChild(adminLink);
     }
+
+    window.resetQuiz = () => {
+      if (confirm("Are you sure you want to take another test? Your current answers will be cleared and questions will be reshuffled.")) {
+        localStorage.removeItem(LS_KEY);
+        localStorage.removeItem(LS_ANSWERS);
+        localStorage.removeItem(LS_QS);
+        location.reload();
+      }
+    };
   </script>
 </body>
 
