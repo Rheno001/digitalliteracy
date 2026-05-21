@@ -1,860 +1,577 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Frontend Basics Quiz</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Practical: Build a Simple Portfolio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
   <style>
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     :root {
       --bg: #f8fafc;
-      --surface: rgba(255, 255, 255, 0.9);
+      --surface: #ffffff;
       --accent: #4f46e5;
       --accent-light: #eef2ff;
       --text: #0f172a;
       --muted: #64748b;
       --border: #e2e8f0;
-      --correct: #10b981;
-      --correct-bg: #ecfdf5;
-      --wrong: #ef4444;
-      --wrong-bg: #fef2f2;
-      --radius: 20px;
+      --radius: 16px;
       --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
     }
-
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
     body {
       font-family: 'DM Sans', sans-serif;
       background: radial-gradient(circle at top right, #eef2ff, #f8fafc);
       color: var(--text);
-      min-height: 100vh;
-      padding: 3rem 1rem 5rem;
       line-height: 1.6;
+      padding: 3rem 1rem 5rem;
+      min-height: 100vh;
     }
-
-    header {
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    header.page-header {
       text-align: center;
-      margin-bottom: 2.5rem;
+      margin-bottom: 3rem;
     }
-
+    
     .badge {
       display: inline-block;
       background: var(--accent);
       color: #fff;
       font-family: 'Syne', sans-serif;
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      padding: 4px 14px;
+      padding: 6px 16px;
       border-radius: 999px;
       margin-bottom: 1rem;
     }
-
+    
     h1 {
       font-family: 'Syne', sans-serif;
-      font-size: clamp(2rem, 5vw, 3rem);
+      font-size: clamp(2rem, 4vw, 3rem);
       font-weight: 800;
-      line-height: 1.1;
       color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 1rem;
     }
-
+    
     h1 span {
       color: var(--accent);
     }
-
+    
     .subtitle {
-      margin-top: 0.75rem;
       color: var(--muted);
-      font-size: 1rem;
-    }
-
-    .quiz-wrap {
-      max-width: 680px;
+      font-size: 1.1rem;
+      max-width: 600px;
       margin: 0 auto;
     }
-
-    .progress-bar-outer {
-      background: var(--border);
-      border-radius: 999px;
-      height: 6px;
+    
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2.5rem;
       margin-bottom: 2rem;
-      overflow: hidden;
-    }
-
-    .progress-bar-inner {
-      height: 100%;
-      background: var(--accent);
-      border-radius: 999px;
-      transition: width 0.4s ease;
-    }
-
-    .progress-label {
-      font-size: 0.82rem;
-      color: var(--muted);
-      margin-bottom: 0.4rem;
-      text-align: right;
-    }
-
-    .question-card {
-      background: var(--surface);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 2rem;
-      margin-bottom: 1.5rem;
       box-shadow: var(--shadow);
-      animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
-
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .q-number {
-      font-family: 'Syne', sans-serif;
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--accent);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 0.6rem;
-    }
-
-    .q-text {
-      font-size: 1.05rem;
-      font-weight: 500;
-      line-height: 1.5;
-      margin-bottom: 1.25rem;
-    }
-
-    .options {
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-    }
-
-    .option {
-      display: flex;
-      align-items: flex-start;
-      gap: 1rem;
-      padding: 1rem 1.25rem;
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      font-size: 0.95rem;
-      position: relative;
-    }
-
-    .option:hover {
-      border-color: var(--accent);
-      background: var(--accent-light);
-    }
-
-    .option input[type="radio"] {
-      accent-color: var(--accent);
-      width: 18px;
-      height: 18px;
-      flex-shrink: 0;
-      margin-top: 0.15rem;
-    }
-
-    .option.correct {
-      border-color: var(--correct);
-      background: var(--correct-bg);
-      color: #065f46;
-      font-weight: 600;
-    }
-
-    .option.wrong {
-      border-color: var(--wrong);
-      background: var(--wrong-bg);
-      color: #991b1b;
-      font-weight: 600;
-    }
-
-    .option span {
-      flex: 1;
-    }
-
-    .status-icon {
-      font-weight: 800;
-      margin-left: 0.5rem;
-      flex-shrink: 0;
-    }
-
-    .submit-btn {
-      display: block;
-      width: 100%;
-      padding: 1rem;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius);
-      font-family: 'Syne', sans-serif;
-      font-size: 1.05rem;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      cursor: pointer;
-      margin-top: 1.5rem;
-      transition: opacity 0.2s, transform 0.1s;
-    }
-
-    .submit-btn:hover {
-      opacity: 0.88;
-    }
-
-    .submit-btn:active {
-      transform: scale(0.99);
-    }
-
-    .submit-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    /* Result screen */
-    .result-screen {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 2.5rem 2rem;
-      text-align: center;
-      animation: fadeUp 0.4s ease;
-    }
-
-    .score-ring {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: conic-gradient(var(--accent) 0%, var(--accent-light) 0%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 1.5rem;
-      position: relative;
-    }
-
-    .score-ring-inner {
-      width: 88px;
-      height: 88px;
-      background: var(--surface);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
-
-    .score-number {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: var(--text);
-      line-height: 1;
-    }
-
-    .score-denom {
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-
-    .result-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.6rem;
-      font-weight: 800;
-      margin-bottom: 0.5rem;
-    }
-
-    .result-msg {
-      color: var(--muted);
-      font-size: 0.97rem;
-      line-height: 1.6;
-    }
-
-    .locked-screen {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 3rem 2rem;
-      text-align: center;
-    }
-
-    .lock-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-
-    .locked-screen h2 {
+    
+    .card-title {
       font-family: 'Syne', sans-serif;
       font-size: 1.5rem;
       font-weight: 700;
-      margin-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
-
-    .locked-screen p {
-      color: var(--muted);
-      font-size: 0.95rem;
+    
+    /* Mock Browser for Example */
+    .mock-browser {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+    }
+    
+    .mock-browser-header {
+      background: #f1f5f9;
+      padding: 0.75rem 1rem;
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .mock-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    .mock-dot.red { background: #ff5f56; }
+    .mock-dot.yellow { background: #ffbd2e; }
+    .mock-dot.green { background: #27c93f; }
+    
+    .mock-content {
+      position: relative;
+    }
+    
+    /* Example Portfolio Styling */
+    .eg-portfolio {
+      font-family: 'Inter', 'DM Sans', sans-serif;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 380px;
+    }
+    
+    .eg-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid #eaeaea;
+    }
+    
+    .eg-logo {
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: -0.5px;
+    }
+    
+    .eg-nav {
+      display: flex;
+      gap: 1.5rem;
+    }
+    
+    .eg-nav span {
+      color: #666;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .eg-nav span:hover {
+      color: var(--accent);
+    }
+    
+    .eg-hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    }
+    
+    .eg-hero h2 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: #111;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+    
+    .eg-hero p {
+      font-size: 1.1rem;
+      color: #555;
+      margin-bottom: 2rem;
+      max-width: 500px;
       line-height: 1.6;
     }
-
-    .review-toggle {
-      margin-top: 1.5rem;
-      background: none;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      padding: 0.6rem 1.4rem;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.9rem;
+    
+    .eg-btn {
+      background: #111;
+      color: #fff;
+      padding: 0.75rem 2rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.95rem;
       cursor: pointer;
-      color: var(--text);
-      transition: border-color 0.15s;
+      transition: transform 0.2s, background 0.2s;
+    }
+    
+    .eg-btn:hover {
+      background: var(--accent);
+      transform: translateY(-2px);
+    }
+    
+    .eg-profile-pic {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      margin-bottom: 1rem;
+      border: 3px solid #fff;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     }
 
-    .review-toggle:hover {
-      border-color: var(--accent);
+    .eg-section {
+      padding: 2.5rem 2rem;
+      text-align: center;
     }
 
-    .review-section {
-      margin-top: 2rem;
+    .eg-section h3 {
+      font-size: 1.4rem;
+      margin-bottom: 1.5rem;
+      color: #222;
     }
 
-    .review-section .question-card {
-      pointer-events: none;
+    .eg-project-images {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
     }
 
-    @media (max-width: 480px) {
-      .question-card {
-        padding: 1.25rem;
-      }
+    .eg-project-img {
+      width: 160px;
+      height: 100px;
+      background: #cbd5e1;
+      border-radius: 6px;
     }
 
-    /* Essay Question Styles */
-    .essay-input {
+    .eg-contact-form {
+      max-width: 350px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .eg-mock-input {
       width: 100%;
-      min-height: 120px;
+      height: 36px;
+      background: #f8fafc;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .eg-mock-textarea {
+      width: 100%;
+      height: 70px;
+      background: #f8fafc;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+    }
+    
+    .eg-footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.85rem;
+      color: #888;
+      border-top: 1px solid #eaeaea;
+    }
+    
+    /* Hints List */
+    .hints-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .hint-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 1.25rem;
+      background: var(--accent-light);
+      border-radius: 12px;
+      border-left: 4px solid var(--accent);
+    }
+    
+    .hint-icon {
+      background: var(--accent);
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    
+    .hint-text strong {
+      display: block;
+      color: var(--text);
+      font-size: 1.05rem;
+      margin-bottom: 0.3rem;
+    }
+    
+    .hint-text p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 0;
+    }
+    
+    code {
+      background: rgba(0,0,0,0.05);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      color: #e11d48;
+      font-size: 0.9em;
+    }
+
+    /* Form Styles */
+    .submission-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .form-group p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .form-control {
+      width: 100%;
       padding: 1rem;
       border: 2px solid var(--border);
-      border-radius: 12px;
+      border-radius: 10px;
       font-family: 'DM Mono', monospace;
       font-size: 0.9rem;
       background: #fdfdfd;
-      resize: vertical;
-      transition: border-color 0.2s;
+      transition: all 0.2s;
     }
 
-    .essay-input:focus {
+    textarea.form-control {
+      min-height: 250px;
+      resize: vertical;
+    }
+
+    .form-control:focus {
       outline: none;
       border-color: var(--accent);
       background: #fff;
     }
 
-    .essay-review {
-      background: var(--accent-light);
+    .btn-submit {
+      background: var(--accent);
+      color: #fff;
+      border: none;
       padding: 1rem;
-      border-radius: 8px;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.85rem;
-      white-space: pre-wrap;
-      margin-top: 0.5rem;
-      border: 1px solid var(--border);
-    }
-
-    /* Submissions View */
-    .admin-link {
-      display: block;
-      text-align: center;
-      margin-top: 3rem;
-      color: var(--muted);
-      font-size: 0.8rem;
-      text-decoration: none;
-      opacity: 0.3;
-      transition: opacity 0.2s;
-    }
-
-    .admin-link:hover {
-      opacity: 1;
-    }
-
-    .submissions-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-      font-size: 0.85rem;
-    }
-
-    .submissions-table th,
-    .submissions-table td {
-      text-align: left;
-      padding: 0.75rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .submissions-table th {
-      background: var(--accent-light);
-      color: var(--accent);
+      font-size: 1.1rem;
+      font-weight: 700;
       font-family: 'Syne', sans-serif;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn-submit:hover { opacity: 0.9; }
+    .btn-submit:active { transform: scale(0.98); }
+
+    .success-msg {
+      display: none;
+      background: #ecfdf5;
+      border: 1px solid #10b981;
+      color: #065f46;
+      padding: 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+      animation: fadeUp 0.4s ease;
+    }
+
+    .success-msg h3 {
+      margin-bottom: 0.5rem;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
-
 <body>
 
-  <header>
-    <div class="badge">Objective Test</div>
-    <h1>Frontend <span>Basics</span></h1>
-    <p class="subtitle">20 questions · Pick one answer per question</p>
-  </header>
+  <div class="container">
+    <header class="page-header">
+      <div class="badge">Practical Assessment</div>
+      <h1>Build a <span>Simple Portfolio</span></h1>
+      <p class="subtitle">Put your HTML and CSS skills to the test by creating a single-page personal portfolio from scratch.</p>
+    </header>
 
-  <div class="quiz-wrap" id="app"></div>
-
-  <script>
-    const ALL_QUESTIONS = [
-      // HTML full meaning & basics
-      { q: "What does HTML stand for?", options: ["HyperText Markup Language", "HighText Machine Language", "HyperText Multiple Language", "HyperTransfer Markup Language"], answer: 0 },
-      { q: "What does CSS stand for?", options: ["Colorful Style Sheets", "Computer Style Sheets", "Cascading Style Sheets", "Creative Style Sheets"], answer: 2 },
-      { q: "Which of the following is NOT one of the three main frontend development languages?", options: ["HTML", "CSS", "Python", "JavaScript"], answer: 2 },
-      { q: "What is the role of HTML in a webpage?", options: ["It styles the page", "It provides the structure/content", "It makes the page interactive", "It connects to a database"], answer: 1 },
-      { q: "What is the role of CSS in a webpage?", options: ["It defines the structure", "It adds interactivity", "It styles and presents the content", "It stores data"], answer: 2 },
-      { q: "What is the role of JavaScript in a webpage?", options: ["It creates the layout", "It adds color to elements", "It adds interactivity and behavior", "It links pages together"], answer: 2 },
-
-      // HTML structure
-      { q: "Which tag wraps ALL other HTML tags on a page?", options: ["<body>", "<head>", "<html>", "<main>"], answer: 2 },
-      { q: "Where should the <title> tag of a webpage go?", options: ["Inside <body>", "Inside <head>", "Inside <footer>", "Inside <html>"], answer: 1 },
-      { q: "Which section of an HTML page contains the visible content that users see?", options: ["<head>", "<title>", "<meta>", "<body>"], answer: 3 },
-      { q: "What is the very first line of a standard HTML document called?", options: ["The HTML tag", "The DOCTYPE declaration", "The metadata", "The head tag"], answer: 1 },
-      { q: "What does <!DOCTYPE html> tell the browser?", options: ["To load CSS", "The document is HTML5", "The document is XML", "To run JavaScript"], answer: 1 },
-      { q: "Which of these represents the correct basic structure order of an HTML page?", options: ["<!DOCTYPE> → <html> → <head> → <body>", "<head> → <body> → <html>", "<body> → <head> → <!DOCTYPE>", "<html> → <!DOCTYPE> → <head>"], answer: 0 },
-
-      // CSS MCQ (Expanded)
-      { q: "Which property is used to change the background color of an element?", options: ["color", "bgcolor", "background-color", "fill"], answer: 2 },
-      { q: "How do you select an element with the class name 'btn' in CSS?", options: ["#btn", ".btn", "btn", "*btn"], answer: 1 },
-      { q: "Which CSS property is used to change the text color of an element?", options: ["font-color", "text-color", "color", "fg-color"], answer: 2 },
-      { q: "How do you select an element with the ID 'main-header' in CSS?", options: [".main-header", "#main-header", "header#main", "id:main-header"], answer: 1 },
-      { q: "Which property is used to change the font of an element?", options: ["font-style", "font-weight", "font-family", "font-type"], answer: 2 },
-      { q: "Which property controls the space between the content and the border?", options: ["margin", "padding", "border-spacing", "gap"], answer: 1 },
-      { q: "Which property controls the space outside the border?", options: ["margin", "padding", "outline", "spacing"], answer: 0 },
-      { q: "Which CSS property is used to make text bold?", options: ["font-style: bold", "text-decoration: bold", "font-weight: bold", "font-variant: bold"], answer: 2 },
-      { q: "What is the correct syntax for a CSS comment?", options: ["// comment", "/* comment */", "<!-- comment -->", "# comment"], answer: 1 },
-      { q: "Which property is used to center text in CSS?", options: ["align-text", "text-align", "horizontal-align", "center-text"], answer: 1 },
-      { q: "Which property is used to change the font size of an element?", options: ["text-size", "font-size", "size", "font-style"], answer: 1 },
-      { q: "What is the default value of the position property?", options: ["absolute", "relative", "static", "fixed"], answer: 2 },
-      { q: "How do you add a shadow to a box in CSS?", options: ["shadow: 5px", "box-shadow: 2px 2px 5px grey", "element-shadow: 2px", "border-shadow: black"], answer: 1 },
-      { q: "Which property is used to change the mouse cursor when hovering?", options: ["mouse-pointer", "pointer", "cursor", "hover-icon"], answer: 2 },
-      { q: "How do you make a list not have bullets?", options: ["list-style: none", "bullets: off", "text-decoration: none", "list-style-type: none"], answer: 3 },
-      { q: "Which property sets text to uppercase?", options: ["text-style: uppercase", "text-transform: uppercase", "font-case: upper", "text-decoration: uppercase"], answer: 1 },
-      { q: "What does 'z-index' control?", options: ["The zoom level", "The stack order of elements", "The transparency", "The border width"], answer: 1 },
-      { q: "How do you select all elements on a page?", options: ["all", ".all", "*", "body"], answer: 2 },
-      { q: "Which property changes space between characters?", options: ["word-spacing", "line-height", "letter-spacing", "character-space"], answer: 2 },
-      { q: "Which CSS property is used to change the width of an element?", options: ["size", "width", "horizontal-size", "element-width"], answer: 1 },
-
-      // Essay/Code Questions (Expanded)
-      { q: "Create a paragraph with all the texts within it to be in italics.", type: "essay", placeholder: '<p><i>...</i></p>' },
-      { q: "Write the HTML code for a link that goes to 'https://google.com' with the text 'Search'.", type: "essay", placeholder: '<a href="...">...</a>' },
-      { q: "Write a CSS rule to make all <h1> elements have a blue color.", type: "essay", placeholder: 'h1 { ... }' },
-      { q: "Write the HTML code to create an unordered list with two items: 'Apples' and 'Oranges'.", type: "essay", placeholder: '<ul>...</ul>' },
-      { q: "Write a CSS rule that sets the background color of the body to 'lightgray'.", type: "essay", placeholder: 'body { ... }' },
-      { q: "Write the HTML code for an image with the source 'pic.jpg' and an alt text 'Profile Picture'.", type: "essay", placeholder: '<img ...>' },
-      { q: "Write the HTML for a button that says 'Submit' and has an ID of 'main-btn'.", type: "essay", placeholder: '<button id="...">...</button>' },
-      { q: "Write a CSS rule to hide an element with the class 'hidden-box'.", type: "essay", placeholder: '.hidden-box { ... }' },
-      { q: "Create a level 2 heading (h2) with the text 'Frontend Quiz'.", type: "essay", placeholder: '<h2>...</h2>' },
-      { q: "Write a CSS rule to set all <p> elements to have a font size of 18px.", type: "essay", placeholder: 'p { ... }' },
-
-      // IDE
-      { q: "What does IDE stand for?", options: ["Integrated Design Environment", "Internet Development Engine", "Integrated Development Environment", "Internal Document Editor"], answer: 2 },
-      { q: "Which of the following is a popular IDE used by web developers?", options: ["Google Chrome", "Visual Studio Code", "Microsoft Excel", "Adobe Photoshop"], answer: 1 },
-      { q: "What is the main purpose of an IDE?", options: ["To browse the internet", "To write, edit, and manage code efficiently", "To design images", "To compress files"], answer: 1 },
-
-      // HTML Tags — img
-      { q: "Which HTML tag is used to display an image?", options: ["<picture>", "<src>", "<img>", "<image>"], answer: 2 },
-      { q: "Which attribute on the <img> tag specifies the image file location?", options: ["href", "src", "link", "url"], answer: 1 },
-      { q: "Which attribute on the <img> tag provides alternative text for accessibility?", options: ["title", "alt", "desc", "label"], answer: 1 },
-
-      // HTML Tags — p and headings
-      { q: "What does the <p> tag represent?", options: ["A picture", "A paragraph", "A page", "A position"], answer: 1 },
-      { q: "Which heading tag produces the LARGEST text by default?", options: ["<h6>", "<h3>", "<h1>", "<heading>"], answer: 2 },
-      { q: "Which heading tag produces the SMALLEST text by default?", options: ["<h1>", "<h4>", "<h5>", "<h6>"], answer: 3 },
-
-      // HTML Tags — ul, ol, li
-      { q: "What does the <ul> tag create?", options: ["An ordered list", "An underlined list", "An unordered (bulleted) list", "An updated list"], answer: 2 },
-      { q: "What does the <ol> tag create?", options: ["An optional list", "An ordered (numbered) list", "An outlined list", "An overflowed list"], answer: 1 },
-      { q: "What does the <li> tag represent?", options: ["A list item", "A line in the code", "A linked item", "A labeled input"], answer: 0 },
-    ];
-
-    const TOTAL_SHOWN = 20;
-    const LS_KEY = "fq_submitted_v2";
-    const LS_ANSWERS = "fq_answers_v2";
-    const LS_QS = "fq_questions_v2";
-    const LS_LOG = "fq_submissions_log_v2";
-
-    const esc = (str) => String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-
-    function shuffle(arr) {
-      const a = [...arr];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
-
-    function getOrCreateQuestions() {
-      const stored = localStorage.getItem(LS_QS);
-      if (stored) return JSON.parse(stored);
+    <!-- Example Section -->
+    <div class="card">
+      <div class="card-title">🎯 Target Design Example</div>
+      <p style="margin-bottom: 1.5rem; color: var(--muted);">Your goal is to build something similar to the layout below. Feel free to use your own colors and text, but try to match the structural layout.</p>
       
-      const mcqs = shuffle(ALL_QUESTIONS.filter(q => q.type !== "essay"));
-      const essays = shuffle(ALL_QUESTIONS.filter(q => q.type === "essay"));
-      
-      // Select 14 MCQs and 6 Essays (Total 20)
-      // Questions 1-14 will be MCQs, Questions 15-20 will be Essays
-      const chosen = [
-        ...mcqs.slice(0, 14),
-        ...essays.slice(0, 6)
-      ];
-      
-      localStorage.setItem(LS_QS, JSON.stringify(chosen));
-      return chosen;
-    }
-
-    const app = document.getElementById("app");
-    const submitted = localStorage.getItem(LS_KEY) === "true";
-
-    if (submitted) {
-      renderLocked();
-    } else {
-      renderQuiz();
-    }
-
-    function renderQuiz() {
-      const questions = getOrCreateQuestions();
-      let selected = new Array(questions.length).fill(null);
-
-      function build() {
-        app.innerHTML = "";
-
-        const progressWrap = document.createElement("div");
-        const updateProgress = () => {
-          const ans = selected.filter(s => s !== null && s !== "").length;
-          progressWrap.innerHTML = `
-        <div class="progress-label">${ans} of ${questions.length} answered</div>
-        <div class="progress-bar-outer"><div class="progress-bar-inner" style="width:${(ans / questions.length) * 100}%"></div></div>
-      `;
-          const btn = document.querySelector(".submit-btn");
-          if (btn) btn.disabled = selected.some(s => s === null || s === "");
-        };
-
-        app.appendChild(progressWrap);
-        updateProgress();
-
-        questions.forEach((q, qi) => {
-          const card = document.createElement("div");
-          card.className = "question-card";
-
-          let optionsHtml = "";
-          if (q.type === "essay") {
-            optionsHtml = `<textarea class="essay-input" id="essay-${qi}" placeholder="${q.placeholder || "Enter your code here..."}">${selected[qi] || ""}</textarea>`;
-          } else {
-            optionsHtml = `
-          <div class="options" id="opts-${qi}">
-            ${q.options.map((opt, oi) => `
-              <label class="option" id="opt-${qi}-${oi}">
-                <input type="radio" name="q${qi}" value="${oi}" ${selected[qi] === oi ? "checked" : ""}>
-                <span>${esc(opt)}</span>
-              </label>
-            `).join("")}
+      <div class="mock-browser">
+        <div class="mock-browser-header">
+          <div class="mock-dot red"></div>
+          <div class="mock-dot yellow"></div>
+          <div class="mock-dot green"></div>
+        </div>
+        <div class="mock-content">
+          <div class="eg-portfolio">
+            <div class="eg-header">
+              <div class="eg-logo">Jane Doe.</div>
+              <div class="eg-nav">
+                <span>About</span>
+                <span>Projects</span>
+                <span>Contact</span>
+              </div>
+            </div>
+            <div class="eg-hero">
+              <div class="eg-profile-pic"></div>
+              <h2>Hi, I'm Jane! 👋</h2>
+              <p>I am a passionate frontend developer learning how to build beautiful and responsive web interfaces.</p>
+            </div>
+            <div class="eg-section" style="background: #fff;">
+              <h3>My Projects</h3>
+              <div class="eg-project-images">
+                <div class="eg-project-img"></div>
+                <div class="eg-project-img"></div>
+              </div>
+            </div>
+            <div class="eg-section" style="background: #fafafa;">
+              <h3>Contact Me</h3>
+              <div class="eg-contact-form">
+                <div class="eg-mock-input"></div>
+                <div class="eg-mock-input"></div>
+                <div class="eg-mock-textarea"></div>
+                <div class="eg-btn" style="text-align: center;">Send Message</div>
+              </div>
+            </div>
+            <div class="eg-footer">
+              © 2026 Jane Doe. Built with HTML & CSS.
+            </div>
           </div>
-        `;
-          }
-
-          card.innerHTML = `
-        <div class="q-number">Question ${qi + 1}</div>
-        <div class="q-text">${esc(q.q)}</div>
-        ${optionsHtml}
-      `;
-          app.appendChild(card);
-
-          if (q.type === "essay") {
-            const textarea = card.querySelector("textarea");
-            textarea.addEventListener("input", (e) => {
-              selected[qi] = e.target.value.trim();
-              updateProgress();
-            });
-          } else {
-            card.querySelectorAll(`input[type="radio"]`).forEach(input => {
-              input.addEventListener("change", () => {
-                selected[qi] = parseInt(input.value);
-                updateProgress();
-              });
-            });
-          }
-        });
-
-        const btn = document.createElement("button");
-        btn.className = "submit-btn";
-        btn.textContent = "Submit Test";
-        btn.disabled = true;
-        btn.addEventListener("click", () => {
-          if (selected.some(s => s === null || s === "")) {
-            alert("Please answer all questions before submitting.");
-            return;
-          }
-
-          // Save to global log
-          const allLogs = JSON.parse(localStorage.getItem(LS_LOG) || "[]");
-          allLogs.push({
-            timestamp: new Date().toISOString(),
-            questions: questions,
-            answers: selected
-          });
-          localStorage.setItem(LS_LOG, JSON.stringify(allLogs));
-
-          localStorage.setItem(LS_KEY, "true");
-          localStorage.setItem(LS_ANSWERS, JSON.stringify(selected));
-          renderResult(questions, selected);
-        });
-        app.appendChild(btn);
-
-        const adminLink = document.createElement("a");
-        adminLink.href = "#";
-        adminLink.className = "admin-link";
-        adminLink.textContent = "Admin: View Submissions";
-        adminLink.onclick = (e) => {
-          e.preventDefault();
-          renderSubmissions();
-        };
-        app.appendChild(adminLink);
-      }
-
-      build();
-    }
-
-    function renderResult(questions, selected) {
-      app.innerHTML = "";
-      const score = questions.reduce((acc, q, i) => acc + (selected[i] === q.answer ? 1 : 0), 0);
-      const pct = Math.round((score / questions.length) * 100);
-
-      let title = "", msg = "";
-      if (pct >= 80) { title = "Excellent work! 🎉"; msg = "You have a strong grasp of frontend basics. Keep building on this foundation!"; }
-      else if (pct >= 60) { title = "Good effort! 👍"; msg = "You're getting there. Review the topics you missed and you'll improve quickly."; }
-      else { title = "Keep studying! 📚"; msg = "Don't be discouraged — every expert was once a beginner. Go over the material again and try to understand each concept."; }
-
-      const deg = Math.round((score / questions.length) * 360);
-
-      const result = document.createElement("div");
-      result.className = "result-screen";
-      result.innerHTML = `
-    <div class="score-ring" style="background: conic-gradient(#4f46e5 ${deg}deg, #eef2ff ${deg}deg);">
-      <div class="score-ring-inner">
-        <span class="score-number">${score}</span>
-        <span class="score-denom">/ ${questions.length}</span>
+        </div>
       </div>
     </div>
-    <div class="result-title">${title}</div>
-    <p class="result-msg">You scored <strong>${score} out of ${questions.length}</strong> (${pct}%). ${msg}</p>
-    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
-      <button class="review-toggle" id="review-btn">Review answers</button>
-      <button class="review-toggle" onclick="resetQuiz()" style="background: var(--accent); color: white; border-color: var(--accent);">Retake Test</button>
-    </div>
-  `;
-      app.appendChild(result);
 
-      const reviewSection = document.createElement("div");
-      reviewSection.className = "review-section";
-      reviewSection.style.display = "none";
-      app.appendChild(reviewSection);
-
-      document.getElementById("review-btn").addEventListener("click", () => {
-        const visible = reviewSection.style.display !== "none";
-        reviewSection.style.display = visible ? "none" : "block";
-        document.getElementById("review-btn").textContent = visible ? "Review answers" : "Hide review";
-        if (!visible && reviewSection.innerHTML === "") {
-          buildReview(questions, selected, reviewSection);
-        }
-      });
-    }
-
-    function buildReview(questions, selected, container) {
-      questions.forEach((q, qi) => {
-        const userAns = selected[qi];
-        const card = document.createElement("div");
-        card.className = "question-card";
-
-        let inner = "";
-        if (q.type === "essay") {
-          inner = `<div class="essay-review">${esc(userAns)}</div>`;
-        } else {
-          const correct = q.answer;
-          inner = `
-        <div class="options">
-          ${q.options.map((opt, oi) => {
-            let cls = "";
-            if (oi === correct) cls = "correct";
-            else if (oi === userAns && userAns !== correct) cls = "wrong";
-            const icon = oi === correct ? '<span class="status-icon">✓</span>' : (oi === userAns ? '<span class="status-icon">✗</span>' : "");
-            return `<div class="option ${cls}"><span>${esc(opt)}</span>${icon}</div>`;
-          }).join("")}
+    <!-- Hints Section -->
+    <div class="card">
+      <div class="card-title">💡 Implementation Hints</div>
+      <div class="hints-list">
+        <div class="hint-item">
+          <div class="hint-icon">1</div>
+          <div class="hint-text">
+            <strong>Use Semantic HTML</strong>
+            <p>Structure your document using tags like <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;section&gt;</code>, and <code>&lt;footer&gt;</code> instead of just using generic <code>&lt;div&gt;</code> tags everywhere.</p>
+          </div>
         </div>
-      `;
-        }
-
-        card.innerHTML = `
-      <div class="q-number">Question ${qi + 1}</div>
-      <div class="q-text">${esc(q.q)}</div>
-      ${inner}
-    `;
-        container.appendChild(card);
-      });
-    }
-
-    function renderSubmissions() {
-      const logs = JSON.parse(localStorage.getItem(LS_LOG) || "[]");
-      app.innerHTML = `
-    <div class="result-screen">
-      <div class="result-title">All Submissions</div>
-      ${logs.length === 0 ? "<p>No submissions yet.</p>" : `
-        <table class="submissions-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Score</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${logs.map((log, i) => {
-        const score = log.questions.reduce((acc, q, qi) => {
-          if (q.type === "essay") return acc; // Essays not auto-graded
-          return acc + (log.answers[qi] === q.answer ? 1 : 0);
-        }, 0);
-        const mcqCount = log.questions.filter(q => q.type !== "essay").length;
-        return `
-                <tr>
-                  <td>${new Date(log.timestamp).toLocaleString()}</td>
-                  <td>${score} / ${mcqCount} (MCQs)</td>
-                  <td><button class="review-toggle" onclick="viewLog(${i})">View Answers</button></td>
-                </tr>
-              `;
-      }).join("")}
-          </tbody>
-        </table>
-      `}
-      <button class="submit-btn" onclick="location.reload()" style="margin-top: 2rem;">Back to Main</button>
+        <div class="hint-item">
+          <div class="hint-icon">2</div>
+          <div class="hint-text">
+            <strong>Flexbox is Your Friend</strong>
+            <p>Use <code>display: flex;</code> on the header to align the logo to the left and navigation links to the right (<code>justify-content: space-between;</code>). Also, use flexbox to center your hero content vertically and horizontally.</p>
+          </div>
+        </div>
+        <div class="hint-item">
+          <div class="hint-icon">3</div>
+          <div class="hint-text">
+            <strong>Reset Default Margins</strong>
+            <p>Browsers add default margins to elements. Use a CSS reset at the top of your styles: <code>* { margin: 0; padding: 0; box-sizing: border-box; }</code> to have full control.</p>
+          </div>
+        </div>
+        <div class="hint-item">
+          <div class="hint-icon">4</div>
+          <div class="hint-text">
+            <strong>Add Interactive Hover States</strong>
+            <p>Make your navigation links and buttons feel alive! Use the <code>:hover</code> pseudo-class to change background colors or add a subtle transition (<code>transition: all 0.3s ease;</code>).</p>
+          </div>
+        </div>
+        <div class="hint-item">
+          <div class="hint-icon">5</div>
+          <div class="hint-text">
+            <strong>Add Images & a Contact Form</strong>
+            <p>Your portfolio must include at least <strong>two images</strong> (e.g., a profile picture and a project screenshot) and a functional-looking <strong>contact form</strong> (with inputs for name, email, and a message textarea).</p>
+          </div>
+        </div>
+      </div>
     </div>
-    <div id="log-view" class="review-section"></div>
-  `;
-    }
 
-    window.viewLog = (index) => {
-      const logs = JSON.parse(localStorage.getItem(LS_LOG) || "[]");
-      const log = logs[index];
-      const container = document.getElementById("log-view");
-      container.innerHTML = "";
-      container.style.display = "block";
-      buildReview(log.questions, log.answers, container);
-      container.scrollIntoView({ behavior: 'smooth' });
-    };
-
-    function renderLocked() {
-      const storedQ = localStorage.getItem(LS_QS);
-      const storedA = localStorage.getItem(LS_ANSWERS);
-
-      app.innerHTML = "";
-
-      let scoreHtml = "";
-      if (storedQ && storedA) {
-        const questions = JSON.parse(storedQ);
-        const selected = JSON.parse(storedA);
-        const score = questions.reduce((acc, q, i) => acc + (selected[i] === q.answer ? 1 : 0), 0);
-        scoreHtml = `<p style="margin-top:0.5rem; color:var(--accent); font-weight:600; font-size:1.05rem;">Your score: ${score} / ${questions.length}</p>`;
-      }
-
-      const locked = document.createElement("div");
-      locked.className = "locked-screen";
-      locked.innerHTML = `
-    <div class="lock-icon">🔒</div>
-    <h2>Test Already Submitted</h2>
-    <p>You have already completed this test. Your submission has been recorded and you cannot retake it.</p>
-    ${scoreHtml}
-  `;
-
-      if (storedQ && storedA) {
-        const reviewBtn = document.createElement("button");
-        reviewBtn.className = "review-toggle";
-        reviewBtn.style.marginTop = "1.5rem";
-        reviewBtn.textContent = "Review my answers";
+    <!-- Submission Section -->
+    <div class="card" id="submission-card">
+      <div class="card-title">📝 Submit Your Code</div>
+      <p style="margin-bottom: 1.5rem; color: var(--muted);">Write your HTML and CSS below. Your code will be saved locally for review.</p>
+      
+      <form class="submission-form" id="portfolio-form">
+        <div class="form-group">
+          <label for="html-code">HTML Code</label>
+          <p>Paste your full HTML document code here (including the structure).</p>
+          <textarea id="html-code" class="form-control" placeholder="<!DOCTYPE html>&#10;<html>&#10;...&#10;</html>" required></textarea>
+        </div>
         
-        const retakeBtn = document.createElement("button");
-        retakeBtn.className = "review-toggle";
-        retakeBtn.style.marginTop = "1.5rem";
-        retakeBtn.style.marginLeft = "1rem";
-        retakeBtn.style.background = "var(--accent)";
-        retakeBtn.style.color = "white";
-        retakeBtn.style.borderColor = "var(--accent)";
-        retakeBtn.textContent = "Retake Test";
-        retakeBtn.onclick = resetQuiz;
+        <div class="form-group">
+          <label for="css-code">CSS Code</label>
+          <p>Paste your external CSS styles here.</p>
+          <textarea id="css-code" class="form-control" placeholder="* {&#10;  margin: 0;&#10;  padding: 0;&#10;}&#10;..." required></textarea>
+        </div>
 
-        locked.appendChild(reviewBtn);
-        locked.appendChild(retakeBtn);
+        <button type="submit" class="btn-submit">Submit Practical</button>
+      </form>
+      
+      <div class="success-msg" id="success-msg">
+        <h3>🎉 Submission Successful!</h3>
+        <p>Your portfolio code has been saved locally.</p>
+        <button class="btn-submit" style="margin-top: 1rem; width: auto; padding: 0.5rem 1.5rem; font-size: 1rem;" onclick="location.reload()">Submit Another</button>
+      </div>
+    </div>
 
-        const reviewSection = document.createElement("div");
-        reviewSection.className = "review-section";
-        reviewSection.style.display = "none";
-        app.appendChild(locked);
-        app.appendChild(reviewSection);
+  </div>
 
-        reviewBtn.addEventListener("click", () => {
-          const visible = reviewSection.style.display !== "none";
-          reviewSection.style.display = visible ? "none" : "block";
-          reviewBtn.textContent = visible ? "Review my answers" : "Hide review";
-          if (!visible && reviewSection.innerHTML === "") {
-            buildReview(JSON.parse(storedQ), JSON.parse(storedA), reviewSection);
-          }
-        });
-      } else {
-        app.appendChild(locked);
-      }
-
-      const adminLink = document.createElement("a");
-      adminLink.href = "#";
-      adminLink.className = "admin-link";
-      adminLink.textContent = "Admin: View All Submissions";
-      adminLink.onclick = (e) => {
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("portfolio-form");
+      const successMsg = document.getElementById("success-msg");
+      
+      // Check if already submitted today (optional behavior, omitted here for flexibility)
+      
+      form.addEventListener("submit", (e) => {
         e.preventDefault();
-        renderSubmissions();
-      };
-      app.appendChild(adminLink);
-    }
-
-    window.resetQuiz = () => {
-      if (confirm("Are you sure you want to take another test? Your current answers will be cleared and questions will be reshuffled.")) {
-        localStorage.removeItem(LS_KEY);
-        localStorage.removeItem(LS_ANSWERS);
-        localStorage.removeItem(LS_QS);
-        location.reload();
-      }
-    };
+        
+        const htmlCode = document.getElementById("html-code").value;
+        const cssCode = document.getElementById("css-code").value;
+        
+        const submission = {
+          timestamp: new Date().toISOString(),
+          html: htmlCode,
+          css: cssCode
+        };
+        
+        // Save to local storage for admin review
+        const allLogs = JSON.parse(localStorage.getItem("portfolio_submissions_v1") || "[]");
+        allLogs.push(submission);
+        localStorage.setItem("portfolio_submissions_v1", JSON.stringify(allLogs));
+        
+        // Hide form, show success
+        form.style.display = "none";
+        successMsg.style.display = "block";
+        window.scrollTo({ top: successMsg.offsetTop - 100, behavior: 'smooth' });
+      });
+    });
   </script>
 </body>
-
 </html>
